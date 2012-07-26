@@ -1,13 +1,11 @@
-from django.utils.timezone import now as datetime_now
-
-from django.forms import ModelForm
-
-
 from django.contrib import admin
-
+from django.forms import ModelForm
+from django.utils.timezone import now as datetime_now
 from django.contrib.contenttypes.generic import GenericTabularInline
 
 from tokafatso.models import *
+
+admin.site.register(TestCode)
 
 class ResultItemInline(GenericTabularInline):
     
@@ -18,43 +16,29 @@ class ResultItemInline(GenericTabularInline):
     extra = 0
 
 class FacsResultAdmin(admin.ModelAdmin):
-  
     inlines = [ResultItemInline]
     search_fields = ['result_identifier']
-
 admin.site.register(FacsResult, FacsResultAdmin)
 
 class MeditechResultAdmin(admin.ModelAdmin):
-  
     inlines = [ResultItemInline]
     search_fields = ['result_identifier']
-
 admin.site.register(MeditechResult, MeditechResultAdmin)
-
-
-admin.site.register(TestCode)
 
 class DeviceAdmin(admin.ModelAdmin):
     list_display = ('device_name', 'device_number', 'device_comment', 'is_authorized')
-    
-admin.site.register(Device, DeviceAdmin)
-
+    admin.site.register(Device, DeviceAdmin)
 
 class OutgoingMessageaAdmin(admin.ModelAdmin):
     list_display = ('recipient', 'sender', 'created', 'rendered_text', 'message_sent', 'message_confirmed','message_sent_datetime')
-    
-
 admin.site.register(OutgoingMessage, OutgoingMessageaAdmin)
 
 class ClinicAdmin(admin.ModelAdmin):
-
     list_display = ('clinic_code', 'clinic_name', 'last_message_confirmed', 'received')
     list_filter = ['active']
 
     readonly_fields = ('received', 'clinic_timeseries', 'requisition_timeseries')
     actions = ['restart_blocked_queue']
-
-
 
     def restart_blocked_queue(self, request, queryset):
         started_counter = 0
@@ -70,8 +54,6 @@ class ClinicAdmin(admin.ModelAdmin):
                 started_counter += 1
             else:
                 no_printer += 1
-                
-
         user_message =  'Restarted text message queues for %s clinic(s). ' % started_counter
         if no_printer:
             user_message += '%s clinic(s) with no registered printer.' % no_printer
@@ -82,13 +64,10 @@ class ClinicAdmin(admin.ModelAdmin):
             "all": ("tokafatso/clinic_plots.css",)
         }
         js = ['d3/d3.v2.js', 'tokafatso/test.js', 'tokafatso/clinic_requisition_summary.js']
-
-
 admin.site.register(Clinic, ClinicAdmin)
 
 
-class ManualResultItemInline(GenericTabularInline):
-    
+class ManualResultItemInline(GenericTabularInline):    
     model = ResultItem
     ct_field = 'result_type'
     ct_fk_field = 'result_id'
@@ -97,7 +76,6 @@ class ManualResultItemInline(GenericTabularInline):
     fields = ['test_code', 'result_item_value']
 
 class ManualResultAdmin(admin.ModelAdmin):
-  
     inlines = [ManualResultItemInline]
     fields = ['result_identifier', 'result_datetime', 'manual_result_comment']
 
@@ -116,7 +94,6 @@ class ManualResultAdmin(admin.ModelAdmin):
         if db_field.name == "requisition":
             kwargs["queryset"] = Requisition.objects.filter(requisition_status__in=['prelim', 'new'])
         return super(ManualResultAdmin, self).formfield_for_foreignkey(db_field, request, **kwargs)
-
 admin.site.register(ManualResult, ManualResultAdmin)
 
 class RequisitionAdmin(admin.ModelAdmin):
@@ -177,8 +154,6 @@ class RequisitionAdmin(admin.ModelAdmin):
         if failed_counter:
             user_message += 'Failed to queue %s message(s).' % failed_counter
         self.message_user(request, user_message)
-
-
 
     def save_model(self, request, requisition, form, change):
         requisition.save()

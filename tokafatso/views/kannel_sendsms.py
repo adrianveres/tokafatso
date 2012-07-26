@@ -8,6 +8,7 @@ from tokafatso.models import Device, KannelServer, OutgoingMessage, IncomingMess
 def receive_dlr(request):
     """
     Simple view for receiving a message delivery report from a kannel server.
+    The DLR url must be included in messages when to Django.
     """
 
     msgid = request.GET['msgid']
