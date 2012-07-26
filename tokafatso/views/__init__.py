@@ -1,0 +1,1 @@
+from kannel_sendsms import receive_dlr, receive_text_message
